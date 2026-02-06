@@ -18,6 +18,8 @@ const products = [
 function App() {
   const [quantity, setQuantity] = useState({});
   const [total, setTotal] = useState(0);
+  const [showPayment, setShowPayment] = useState(false);
+  const [showFinal, setShowFinal] = useState(false);
 
   const increment = (id) => {
     setQuantity({ ...quantity, [id]: (quantity[id] || 0) + 1 });
@@ -37,7 +39,7 @@ function App() {
 
   return (
     <div className="container">
-      <h1>Gym Store</h1>
+      <h1>🏋️ Gym Store</h1>
 
       <div className="grid">
         {products.slice(0, 4).map((p) => (
@@ -46,12 +48,15 @@ function App() {
             <h3>{p.name}</h3>
             <p>₹{p.price}</p>
 
-            <button onClick={() => decrement(p.id)}>-</button>
-            {quantity[p.id] || 0}
-            <button onClick={() => increment(p.id)}>+</button>
+            <div className="qty">
+              <button onClick={() => decrement(p.id)}>-</button>
+              <span>{quantity[p.id] || 0}</span>
+              <button onClick={() => increment(p.id)}>+</button>
+            </div>
 
-            <br />
-            <button onClick={() => addToCart(p)}>Add to Cart</button>
+            <button className="cart-btn" onClick={() => addToCart(p)}>
+              Add to Cart
+            </button>
           </div>
         ))}
       </div>
@@ -63,19 +68,61 @@ function App() {
             <h3>{p.name}</h3>
             <p>₹{p.price}</p>
 
-            <button onClick={() => decrement(p.id)}>-</button>
-            {quantity[p.id] || 0}
-            <button onClick={() => increment(p.id)}>+</button>
+            <div className="qty">
+              <button onClick={() => decrement(p.id)}>-</button>
+              <span>{quantity[p.id] || 0}</span>
+              <button onClick={() => increment(p.id)}>+</button>
+            </div>
 
-            <br />
-            <button onClick={() => addToCart(p)}>Add to Cart</button>
+            <button className="cart-btn" onClick={() => addToCart(p)}>
+              Add to Cart
+            </button>
           </div>
         ))}
       </div>
 
       <div className="total">
-        Total Payment Amount: ₹{total}
+        <p>Total Payment Amount: <strong>₹{total}</strong></p>
+        <button className="order-btn" onClick={() => setShowPayment(true)}>
+          Order Now
+        </button>
       </div>
+
+      {/* Payment Details Popup */}
+      {showPayment && (
+        <div className="overlay">
+          <div className="popup">
+            <h2>Payment Details</h2>
+            <p>Items Total: ₹{total}</p>
+            <p>Delivery: Free</p>
+            <p><strong>Payable Amount: ₹{total}</strong></p>
+
+            <button onClick={() => {
+              setShowPayment(false);
+              setShowFinal(true);
+            }}>
+              Pay
+            </button>
+
+            <button className="close" onClick={() => setShowPayment(false)}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Final Confirmation Popup */}
+      {showFinal && (
+        <div className="overlay">
+          <div className="popup">
+            <h2>✅ Proceed to Payment</h2>
+            <p>Your order has been placed successfully.</p>
+            <button onClick={() => setShowFinal(false)}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,5 +1,5 @@
-# Use stable Node image
-FROM node:18
+# ---------- Build Stage ----------
+FROM node:18 AS build
 
 # Set working directory
 WORKDIR /app
@@ -10,17 +10,23 @@ COPY package.json package-lock.json ./
 # Install dependencies
 RUN npm install
 
-# Copy rest of the project files
+# Copy application source
 COPY . .
 
 # Build React app
 RUN npm run build
 
-# Install serve to run production build
-RUN npm install -g serve
+# ---------- Production Stage ----------
+FROM nginx:alpine
 
-# Expose port
-EXPOSE 3000
+# Remove default nginx static files
+RUN rm -rf /usr/share/nginx/html/*
 
-# Start the app
-CMD ["serve", "-s", "build", "-l", "3000"]
+# Copy build output to nginx
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Expose nginx port
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
